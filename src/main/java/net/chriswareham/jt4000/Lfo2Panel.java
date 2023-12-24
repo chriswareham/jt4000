@@ -14,7 +14,7 @@ import net.chriswareham.gui.SliderPanel;
 /**
  * This class provides a panel for editing low frequency oscillator 2.
  */
-public class Lfo2Panel extends JPanel {
+public class Lfo2Panel extends AbstractEditorPanel {
     /**
      * The serial version UID.
      */
@@ -41,11 +41,6 @@ public class Lfo2Panel extends JPanel {
     private final SliderPanel amountSlider = new SliderPanel(0, 99, this::updateAmount);
 
     /**
-     * The listener to notify when a patch has been updated.
-     */
-    private final PatchUpdatedListener listener;
-
-    /**
      * The patch to edit.
      */
     private Patch patch;
@@ -56,8 +51,7 @@ public class Lfo2Panel extends JPanel {
      * @param listener the listener to notify when a patch has been updated
      */
     public Lfo2Panel(final PatchUpdatedListener listener) {
-        super(new GridLayout(1, 1, 4, 4));
-        this.listener = listener;
+        super(new GridLayout(1, 1, 4, 4), listener);
         createInterface();
     }
 
@@ -108,9 +102,10 @@ public class Lfo2Panel extends JPanel {
      * Update the low frequency oscillator wave.
      */
     private void updateWave() {
+        LfoWave value = waveComboBoxModel.getSelectedRow();
+        firePatchUpdated(55, value.getCcValue());
         if (patch != null) {
-            patch.setLfo2Wave(waveComboBoxModel.getSelectedRow());
-            firePatchUpdated();
+            patch.setLfo2Wave(value);
         }
     }
 
@@ -118,9 +113,10 @@ public class Lfo2Panel extends JPanel {
      * Update the low frequency oscillator rate.
      */
     private void updateRate() {
+        int value = rateSlider.getValue();
+        firePatchUpdated(73, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setLfo2Rate(rateSlider.getValue());
-            firePatchUpdated();
+            patch.setLfo2Rate(value);
         }
     }
 
@@ -128,18 +124,10 @@ public class Lfo2Panel extends JPanel {
      * Update the low frequency oscillator amount.
      */
     private void updateAmount() {
+        int value = amountSlider.getValue();
+        firePatchUpdated(28, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setLfo2Amount(amountSlider.getValue());
-            firePatchUpdated();
-        }
-    }
-
-    /**
-     * Inform the listener that a patch has been updated.
-     */
-    private void firePatchUpdated() {
-        if (listener != null) {
-            listener.updated();
+            patch.setLfo2Amount(value);
         }
     }
 }

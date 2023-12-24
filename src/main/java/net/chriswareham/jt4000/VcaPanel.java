@@ -12,7 +12,7 @@ import net.chriswareham.gui.SliderPanel;
 /**
  * This class provides a panel for editing the voltage controlled amplifier.
  */
-public class VcaPanel extends JPanel {
+public class VcaPanel extends AbstractEditorPanel {
     /**
      * The serial version UID.
      */
@@ -39,11 +39,6 @@ public class VcaPanel extends JPanel {
     private final SliderPanel envReleaseSlider = new SliderPanel(0, 99, this::updateEnvRelease);
 
     /**
-     * The listener to notify when a patch has been updated.
-     */
-    private final PatchUpdatedListener listener;
-
-    /**
      * The patch to edit.
      */
     private Patch patch;
@@ -55,8 +50,7 @@ public class VcaPanel extends JPanel {
      * @param listener the listener to notify when a patch has been updated
      */
     public VcaPanel(final PatchUpdatedListener listener) {
-        super(new GridLayout(1, 1, 4, 4));
-        this.listener = listener;
+        super(new GridLayout(1, 1, 4, 4), listener);
         createInterface();
     }
 
@@ -108,9 +102,10 @@ public class VcaPanel extends JPanel {
      * Update the envelope attack.
      */
     private void updateEnvAttack() {
+        int value = envAttackSlider.getValue();
+        firePatchUpdated(81, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setVcaEnvAttack(envAttackSlider.getValue());
-            firePatchUpdated();
+            patch.setVcaEnvAttack(value);
         }
     }
 
@@ -118,9 +113,10 @@ public class VcaPanel extends JPanel {
      * Update the envelope decay.
      */
     private void updateEnvDecay() {
+        int value = envDecaySlider.getValue();
+        firePatchUpdated(82, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setVcaEnvDecay(envDecaySlider.getValue());
-            firePatchUpdated();
+            patch.setVcaEnvDecay(value);
         }
     }
 
@@ -128,9 +124,10 @@ public class VcaPanel extends JPanel {
      * Update the envelope sustain.
      */
     private void updateEnvSustain() {
+        int value = envSustainSlider.getValue();
+        firePatchUpdated(83, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setVcaEnvSustain(envSustainSlider.getValue());
-            firePatchUpdated();
+            patch.setVcaEnvSustain(value);
         }
     }
 
@@ -138,18 +135,10 @@ public class VcaPanel extends JPanel {
      * Update the envelope release.
      */
     private void updateEnvRelease() {
+        int value = envReleaseSlider.getValue();
+        firePatchUpdated(84, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setVcaEnvRelease(envReleaseSlider.getValue());
-            firePatchUpdated();
-        }
-    }
-
-    /**
-     * Inform the listener that a patch has been updated.
-     */
-    private void firePatchUpdated() {
-        if (listener != null) {
-            listener.updated();
+            patch.setVcaEnvRelease(value);
         }
     }
 }

@@ -12,7 +12,7 @@ import net.chriswareham.gui.SliderPanel;
 /**
  * This class provides a panel for editing the voltage controlled filter.
  */
-public class VcfPanel extends JPanel {
+public class VcfPanel extends AbstractEditorPanel {
     /**
      * The serial version UID.
      */
@@ -54,11 +54,6 @@ public class VcfPanel extends JPanel {
     private final SliderPanel envReleaseSlider = new SliderPanel(0, 99, this::updateEnvRelease);
 
     /**
-     * The listener to notify when a patch has been updated.
-     */
-    private final PatchUpdatedListener listener;
-
-    /**
      * The patch to edit.
      */
     private Patch patch;
@@ -70,8 +65,7 @@ public class VcfPanel extends JPanel {
      * @param listener the listener to notify when a patch has been updated
      */
     public VcfPanel(final PatchUpdatedListener listener) {
-        super(new GridLayout(1, 1, 4, 4));
-        this.listener = listener;
+        super(new GridLayout(1, 1, 4, 4), listener);
         createInterface();
     }
 
@@ -135,9 +129,10 @@ public class VcfPanel extends JPanel {
      * Update the cutoff.
      */
     private void updateCutoff() {
+        int value = cutoffSlider.getValue();
+        firePatchUpdated(74, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setVcfCutoff(cutoffSlider.getValue());
-            firePatchUpdated();
+            patch.setVcfCutoff(value);
         }
     }
 
@@ -145,9 +140,10 @@ public class VcfPanel extends JPanel {
      * Update the resonance.
      */
     private void updateResonance() {
+        int value = resonanceSlider.getValue();
+        firePatchUpdated(71, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setLfo1Rate(resonanceSlider.getValue());
-            firePatchUpdated();
+            patch.setLfo1Rate(value);
         }
     }
 
@@ -155,9 +151,10 @@ public class VcfPanel extends JPanel {
      * Update the envelope amount.
      */
     private void updateEnvAmount() {
+        int value = envAmountSlider.getValue();
+        firePatchUpdated(47, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setVcfEnvAmount(envAmountSlider.getValue());
-            firePatchUpdated();
+            patch.setVcfEnvAmount(value);
         }
     }
 
@@ -165,9 +162,10 @@ public class VcfPanel extends JPanel {
      * Update the envelope attack.
      */
     private void updateEnvAttack() {
+        int value = envAttackSlider.getValue();
+        firePatchUpdated(85, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setVcfEnvAttack(envAttackSlider.getValue());
-            firePatchUpdated();
+            patch.setVcfEnvAttack(value);
         }
     }
 
@@ -175,9 +173,10 @@ public class VcfPanel extends JPanel {
      * Update the envelope decay.
      */
     private void updateEnvDecay() {
+        int value = envDecaySlider.getValue();
+        firePatchUpdated(86, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setVcfEnvDecay(envDecaySlider.getValue());
-            firePatchUpdated();
+            patch.setVcfEnvDecay(value);
         }
     }
 
@@ -185,9 +184,10 @@ public class VcfPanel extends JPanel {
      * Update the envelope sustain.
      */
     private void updateEnvSustain() {
+        int value = envSustainSlider.getValue();
+        firePatchUpdated(87, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setVcfEnvSustain(envSustainSlider.getValue());
-            firePatchUpdated();
+            patch.setVcfEnvSustain(value);
         }
     }
 
@@ -195,18 +195,10 @@ public class VcfPanel extends JPanel {
      * Update the envelope release.
      */
     private void updateEnvRelease() {
+        int value = envReleaseSlider.getValue();
+        firePatchUpdated(88, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setVcfEnvRelease(envReleaseSlider.getValue());
-            firePatchUpdated();
-        }
-    }
-
-    /**
-     * Inform the listener that a patch has been updated.
-     */
-    private void firePatchUpdated() {
-        if (listener != null) {
-            listener.updated();
+            patch.setVcfEnvRelease(value);
         }
     }
 }

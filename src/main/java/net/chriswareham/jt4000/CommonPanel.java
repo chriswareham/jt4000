@@ -25,29 +25,24 @@ public class CommonPanel extends JPanel {
     private static final long serialVersionUID = 1L;
 
     /**
-     * The pattern that matches a valid name.
+     * The pattern that matches a valid patch name.
      */
-    private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-Z0-9 ]+");
+    private static final Pattern PATCH_NAME_PATTERN = Pattern.compile("[a-zA-Z0-9 ]+");
 
     /**
-     * The name text field.
+     * The MIDI channel spinner model.
      */
-    private final JTextField nameTextField = new IdentifierTextField(NAME_PATTERN, 8, 8);
+    private final SpinnerNumberModel midiChannelSpinnerModel = new SpinnerNumberModel(1, 1, 16, 1);
 
     /**
-     * The source spinner model.
+     * The patch number spinner model.
      */
-    private final SpinnerNumberModel sourceSpinnerModel = new SpinnerNumberModel(0, 0, 31, 1);
+    private final SpinnerNumberModel patchNumberSpinnerModel = new SpinnerNumberModel(1, 1, 32, 1);
 
     /**
-     * The destination spinner model.
+     * The patch name text field.
      */
-    private final SpinnerNumberModel destinationSpinnerModel = new SpinnerNumberModel(0, 0, 31, 1);
-
-    /**
-     * The listener to notify when a patch has been updated.
-     */
-    private final PatchUpdatedListener listener;
+    private final JTextField patchNameTextField = new IdentifierTextField(PATCH_NAME_PATTERN, 8, 8);
 
     /**
      * The patch to edit.
@@ -56,12 +51,9 @@ public class CommonPanel extends JPanel {
 
     /**
      * Construct an instance of a panel for common parameters.
-     *
-     * @param listener the listener to notify when a patch has been updated
      */
-    public CommonPanel(final PatchUpdatedListener listener) {
+    public CommonPanel() {
         super(new GridLayout(1, 1, 4, 4));
-        this.listener = listener;
         createInterface();
     }
 
@@ -73,25 +65,26 @@ public class CommonPanel extends JPanel {
     public void setPatch(final Patch patch) {
         this.patch = patch;
 
-        nameTextField.setText(patch.getName());
-        sourceSpinnerModel.setValue(patch.getSource());
-        destinationSpinnerModel.setValue(patch.getDestination());
+        midiChannelSpinnerModel.setValue(patch.getMidiChannel() + 1);
+        patchNumberSpinnerModel.setValue(patch.getPatchNumber() + 1);
+        patchNameTextField.setText(patch.getPatchName());
     }
 
     /**
      * Create the interface.
      */
     private void createInterface() {
-        nameTextField.addActionListener(event -> updateName());
-        nameTextField.addFocusListener(new FocusAdapter() {
+        midiChannelSpinnerModel.addChangeListener(event -> updateMidiChannel());
+
+        patchNumberSpinnerModel.addChangeListener(event -> updatePatchNumber());
+
+        patchNameTextField.addActionListener(event -> updatePatchName());
+        patchNameTextField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(final FocusEvent event) {
-                updateName();
+                updatePatchName();
             }
         });
-
-        sourceSpinnerModel.addChangeListener(event -> updateSource());
-        destinationSpinnerModel.addChangeListener(event -> updateDestination());
 
         add(createPanel());
     }
@@ -104,52 +97,42 @@ public class CommonPanel extends JPanel {
     private JPanel createPanel() {
         return new GridBagPanel()
             .addBorder(BorderFactory.createLineBorder(Color.BLACK))
-            .addCell("Name:")
-            .addCell(nameTextField, true)
+            .addCell("MIDI Channel:")
+            .addCell(new IntegerSpinner(midiChannelSpinnerModel, true), true)
             .endRow()
-            .addCell("Source Voice:")
-            .addCell(new IntegerSpinner(sourceSpinnerModel, true), true)
+            .addCell("Patch Number:")
+            .addCell(new IntegerSpinner(patchNumberSpinnerModel, true), true)
             .endRow()
-            .addCell("Destination Voice:")
-            .addCell(new IntegerSpinner(destinationSpinnerModel, true), true)
+            .addCell("Patch Name:")
+            .addCell(patchNameTextField, true)
             .endRow()
             .addExpandingRow();
     }
 
     /**
-     * Update the name.
+     * Update the MIDI channel.
      */
-    private void updateName() {
+    private void updateMidiChannel() {
         if (patch != null) {
-            patch.setName(nameTextField.getText());
-            firePatchUpdated();
+            patch.setMidiChannel(midiChannelSpinnerModel.getNumber().intValue() - 1);
         }
     }
 
     /**
-     * Update the source patch number.
+     * Update the patch number.
      */
-    private void updateSource() {
+    private void updatePatchNumber() {
         if (patch != null) {
-            patch.setSource(sourceSpinnerModel.getNumber().intValue());
+            patch.setPatchNumber(patchNumberSpinnerModel.getNumber().intValue() - 1);
         }
     }
 
     /**
-     * Update the destination patch number.
+     * Update the patch name.
      */
-    private void updateDestination() {
+    private void updatePatchName() {
         if (patch != null) {
-            patch.setDestination(destinationSpinnerModel.getNumber().intValue());
-        }
-    }
-
-    /**
-     * Inform the listener that a patch has been updated.
-     */
-    private void firePatchUpdated() {
-        if (listener != null) {
-            listener.updated();
+            patch.setPatchName(patchNameTextField.getText());
         }
     }
 }

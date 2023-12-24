@@ -16,7 +16,7 @@ import net.chriswareham.gui.SliderPanel;
 /**
  * This class provides a panel for editing oscillator 1.
  */
-public class Osc1Panel extends JPanel {
+public class Osc1Panel extends AbstractEditorPanel {
     /**
      * The serial version UID.
      */
@@ -63,11 +63,6 @@ public class Osc1Panel extends JPanel {
     private final SliderPanel portamentoAmountSlider = new SliderPanel(0, 99, this::updatePortamentoAmount);
 
     /**
-     * The listener to notify when a patch has been updated.
-     */
-    private final PatchUpdatedListener listener;
-
-    /**
      * The patch to edit.
      */
     private Patch patch;
@@ -78,8 +73,7 @@ public class Osc1Panel extends JPanel {
      * @param listener the listener to notify when a patch has been updated
      */
     public Osc1Panel(final PatchUpdatedListener listener) {
-        super(new GridLayout(1, 1, 4, 4));
-        this.listener = listener;
+        super(new GridLayout(1, 1, 4, 4), listener);
         createInterface();
     }
 
@@ -146,9 +140,10 @@ public class Osc1Panel extends JPanel {
      * Update the oscillator wave.
      */
     private void updateWave() {
+        Osc1Wave value = waveComboBoxModel.getSelectedRow();
+        firePatchUpdated(24, value.getCcValue());
         if (patch != null) {
-            patch.setOsc1Wave(waveComboBoxModel.getSelectedRow());
-            firePatchUpdated();
+            patch.setOsc1Wave(value);
         }
     }
 
@@ -156,9 +151,10 @@ public class Osc1Panel extends JPanel {
      * Update the oscillator coarse tune.
      */
     private void updateCoarseTune() {
+        int value = coarseTuneSlider.getValue();
+        firePatchUpdated(115, ValueUtils.scale24(value));
         if (patch != null) {
-            patch.setOsc1CoarseTune(coarseTuneSlider.getValue());
-            firePatchUpdated();
+            patch.setOsc1CoarseTune(value);
         }
     }
 
@@ -166,9 +162,10 @@ public class Osc1Panel extends JPanel {
      * Update the oscillator fine tune.
      */
     private void updateFineTune() {
+        int value = fineTuneSlider.getValue();
+        firePatchUpdated(111, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setOsc1FineTune(fineTuneSlider.getValue());
-            firePatchUpdated();
+            patch.setOsc1FineTune(value);
         }
     }
 
@@ -176,9 +173,10 @@ public class Osc1Panel extends JPanel {
      * Update the oscillator modulation amount.
      */
     private void updateModulationAmount() {
+        int value = modulationAmountSlider.getValue();
+        firePatchUpdated(113, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setOsc1ModAmount(modulationAmountSlider.getValue());
-            firePatchUpdated();
+            patch.setOsc1ModAmount(value);
         }
     }
 
@@ -186,9 +184,10 @@ public class Osc1Panel extends JPanel {
      * Update whether the ring modulator is enabled.
      */
     private void updateRingModulator() {
+        boolean value = ringModulatorCheckBox.isSelected();
+        firePatchUpdated(96, value ? 65 : 0);
         if (patch != null) {
-            patch.setRingModEnabled(ringModulatorCheckBox.isSelected());
-            firePatchUpdated();
+            patch.setRingModEnabled(value);
         }
     }
 
@@ -196,9 +195,10 @@ public class Osc1Panel extends JPanel {
      * Update the ring modulator amount.
      */
     private void updateRingModulatorAmount() {
+        int value = ringModulatorAmountSlider.getValue();
+        firePatchUpdated(95, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setRingModAmount(ringModulatorAmountSlider.getValue());
-            firePatchUpdated();
+            patch.setRingModAmount(value);
         }
     }
 
@@ -206,18 +206,10 @@ public class Osc1Panel extends JPanel {
      * Update the portamento amount.
      */
     private void updatePortamentoAmount() {
+        int value = portamentoAmountSlider.getValue();
+        firePatchUpdated(5, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setPortamentoTime(portamentoAmountSlider.getValue());
-            firePatchUpdated();
-        }
-    }
-
-    /**
-     * Inform the listener that a patch has been updated.
-     */
-    private void firePatchUpdated() {
-        if (listener != null) {
-            listener.updated();
+            patch.setPortamentoTime(value);
         }
     }
 }

@@ -4,8 +4,11 @@ import java.awt.BorderLayout;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
+import javax.sound.midi.ShortMessage;
 import javax.sound.midi.SysexMessage;
+import javax.sound.midi.Transmitter;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -60,6 +63,11 @@ public class Editor extends AbstractFrame {
     private final Patch patch = new Patch();
 
     /**
+     * The load patch menu item.
+     */
+    private final JMenuItem loadPatchMenuItem = MenuUtils.createMenuItem("Load Patch", "L", "Load patch", event -> loadPatch(), false);
+
+    /**
      * The save patch menu item.
      */
     private final JMenuItem savePatchMenuItem = MenuUtils.createMenuItem("Save Patch", "S", "Save patch", event -> savePatch(), false);
@@ -67,7 +75,7 @@ public class Editor extends AbstractFrame {
     /**
      * The panel for editing common parameters.
      */
-    private final CommonPanel commonPanel = new CommonPanel(this::patchUpdated);
+    private final CommonPanel commonPanel = new CommonPanel();
 
     /**
      * The panel for editing oscillator 1.
@@ -253,6 +261,7 @@ public class Editor extends AbstractFrame {
                     device.open();
                 }
                 outputDevice = device;
+                loadPatchMenuItem.setEnabled(true);
                 savePatchMenuItem.setEnabled(true);
                 updateStatusBar();
             });
@@ -268,6 +277,7 @@ public class Editor extends AbstractFrame {
                 outputDevice.close();
             }
             outputDevice = null;
+            loadPatchMenuItem.setEnabled(false);
             savePatchMenuItem.setEnabled(false);
             updateStatusBar();
         }
@@ -289,15 +299,26 @@ public class Editor extends AbstractFrame {
     }
 
     /**
-     * Send the current patch via the current output device.
+     * Load the current patch via the current output device.
+     */
+    private void loadPatch() {
+        if (outputDevice != null) {
+            call(() -> {
+                try (Transmitter transmitter = outputDevice.getTransmitter()) {
+                    // TODO
+                }
+            });
+        }
+    }
+
+    /**
+     * Save the current patch via the current output device.
      */
     private void savePatch() {
         if (outputDevice != null) {
             call(() -> {
                 try (Receiver receiver = outputDevice.getReceiver()) {
-                    SysexMessage message = patch.serialise();
-                    logMessage(message);
-                    receiver.send(message, -1);
+                    // TODO
                 }
             });
         }
@@ -311,18 +332,29 @@ public class Editor extends AbstractFrame {
     }
 
     /**
-     * Notified when a patch has been updated.
+     * Send a control change via the current output device.
+     *
+     * @param ccNumber the number of the control change
+     * @param ccValue the value of the control change
      */
-    private void patchUpdated() {
-        savePatch();
+    private void patchUpdated(final int ccNumber, final int ccValue) {
+        if (outputDevice != null) {
+            call(() -> {
+                try (Receiver receiver = outputDevice.getReceiver()) {
+                    ShortMessage message = new ShortMessage(ShortMessage.CONTROL_CHANGE | patch.getMidiChannel(), ccNumber, ccValue);
+                    logMessage(message);
+                    receiver.send(message, -1);
+                }
+            });
+        }
     }
 
     /**
-     * Log a System Exclusive message.
+     * Log a MIDI message.
      *
-     * @param message the System Exclusive message to log
+     * @param message the MIDI message to log
      */
-    private void logMessage(final SysexMessage message) {
+    private void logMessage(final MidiMessage message) {
         if (LOGGER.isLoggable(Level.INFO)) {
             byte[] data = message.getMessage();
             StringBuilder sb = new StringBuilder("Message : ");

@@ -14,7 +14,7 @@ import net.chriswareham.gui.SliderPanel;
 /**
  * This class provides a panel for editing oscillator 2.
  */
-public class Osc2Panel extends JPanel {
+public class Osc2Panel extends AbstractEditorPanel {
     /**
      * The serial version UID.
      */
@@ -46,11 +46,6 @@ public class Osc2Panel extends JPanel {
     private final SliderPanel modulationAmountSlider = new SliderPanel(0, 99, this::updateModulationAmount);
 
     /**
-     * The listener to notify when a patch has been updated.
-     */
-    private final PatchUpdatedListener listener;
-
-    /**
      * The patch to edit.
      */
     private Patch patch;
@@ -61,8 +56,7 @@ public class Osc2Panel extends JPanel {
      * @param listener the listener to notify when a patch has been updated
      */
     public Osc2Panel(final PatchUpdatedListener listener) {
-        super(new GridLayout(1, 1, 4, 4));
-        this.listener = listener;
+        super(new GridLayout(1, 1, 4, 4), listener);
         createInterface();
     }
 
@@ -117,9 +111,10 @@ public class Osc2Panel extends JPanel {
      * Update the oscillator wave.
      */
     private void updateWave() {
+        Osc2Wave value = waveComboBoxModel.getSelectedRow();
+        firePatchUpdated(25, value.getCcValue());
         if (patch != null) {
-            patch.setOsc2Wave(waveComboBoxModel.getSelectedRow());
-            firePatchUpdated();
+            patch.setOsc2Wave(value);
         }
     }
 
@@ -127,9 +122,10 @@ public class Osc2Panel extends JPanel {
      * Update the oscillator coarse tune.
      */
     private void updateCoarseTune() {
+        int value = coarseTuneSlider.getValue();
+        firePatchUpdated(116, ValueUtils.scale24(value));
         if (patch != null) {
-            patch.setOsc2CoarseTune(coarseTuneSlider.getValue());
-            firePatchUpdated();
+            patch.setOsc2CoarseTune(value);
         }
     }
 
@@ -137,9 +133,10 @@ public class Osc2Panel extends JPanel {
      * Update the oscillator fine tune.
      */
     private void updateFineTune() {
+        int value = fineTuneSlider.getValue();
+        firePatchUpdated(112, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setOsc2FineTune(fineTuneSlider.getValue());
-            firePatchUpdated();
+            patch.setOsc2FineTune(value);
         }
     }
 
@@ -147,18 +144,10 @@ public class Osc2Panel extends JPanel {
      * Update the oscillator modulation amount.
      */
     private void updateModulationAmount() {
+        int value = modulationAmountSlider.getValue();
+        firePatchUpdated(114, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setOsc2ModAmount(modulationAmountSlider.getValue());
-            firePatchUpdated();
-        }
-    }
-
-    /**
-     * Inform the listener that a patch has been updated.
-     */
-    private void firePatchUpdated() {
-        if (listener != null) {
-            listener.updated();
+            patch.setOsc2ModAmount(value);
         }
     }
 }

@@ -14,7 +14,7 @@ import net.chriswareham.gui.SliderPanel;
 /**
  * This class provides a panel for editing low frequency oscillator 1.
  */
-public class Lfo1Panel extends JPanel {
+public class Lfo1Panel extends AbstractEditorPanel {
     /**
      * The serial version UID.
      */
@@ -51,11 +51,6 @@ public class Lfo1Panel extends JPanel {
     private final JComboBox<LfoDestination> destinationComboBox = new JComboBox<>(destinationComboBoxModel);
 
     /**
-     * The listener to notify when a patch has been updated.
-     */
-    private final PatchUpdatedListener listener;
-
-    /**
      * The patch to edit.
      */
     private Patch patch;
@@ -66,8 +61,7 @@ public class Lfo1Panel extends JPanel {
      * @param listener the listener to notify when a patch has been updated
      */
     public Lfo1Panel(final PatchUpdatedListener listener) {
-        super(new GridLayout(1, 1, 4, 4));
-        this.listener = listener;
+        super(new GridLayout(1, 1, 4, 4), listener);
         createInterface();
     }
 
@@ -125,9 +119,10 @@ public class Lfo1Panel extends JPanel {
      * Update the low frequency oscillator wave.
      */
     private void updateWave() {
+        LfoWave value = waveComboBoxModel.getSelectedRow();
+        firePatchUpdated(54, value.getCcValue());
         if (patch != null) {
-            patch.setLfo1Wave(waveComboBoxModel.getSelectedRow());
-            firePatchUpdated();
+            patch.setLfo1Wave(value);
         }
     }
 
@@ -135,9 +130,10 @@ public class Lfo1Panel extends JPanel {
      * Update the low frequency oscillator rate.
      */
     private void updateRate() {
+        int value = rateSlider.getValue();
+        firePatchUpdated(72, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setLfo1Rate(rateSlider.getValue());
-            firePatchUpdated();
+            patch.setLfo1Rate(value);
         }
     }
 
@@ -145,9 +141,10 @@ public class Lfo1Panel extends JPanel {
      * Update the low frequency oscillator amount.
      */
     private void updateAmount() {
+        int value = amountSlider.getValue();
+        firePatchUpdated(70, ValueUtils.scale99(value));
         if (patch != null) {
-            patch.setLfo1Amount(amountSlider.getValue());
-            firePatchUpdated();
+            patch.setLfo1Amount(value);
         }
     }
 
@@ -155,18 +152,10 @@ public class Lfo1Panel extends JPanel {
      * Update the low frequency oscillator destination.
      */
     private void updateDestination() {
+        LfoDestination value = destinationComboBoxModel.getSelectedRow();
+        firePatchUpdated(56, value.getCcValue());
         if (patch != null) {
-            patch.setLfo1Destination(destinationComboBoxModel.getSelectedRow());
-            firePatchUpdated();
-        }
-    }
-
-    /**
-     * Inform the listener that a patch has been updated.
-     */
-    private void firePatchUpdated() {
-        if (listener != null) {
-            listener.updated();
+            patch.setLfo1Destination(value);
         }
     }
 }

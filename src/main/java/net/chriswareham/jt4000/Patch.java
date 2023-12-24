@@ -32,19 +32,19 @@ public class Patch implements Serializable {
     private final byte[] buffer = new byte[126];
 
     /**
-     * The source patch number.
+     * The MIDI channel.
      */
-    private int source;
+    private int midiChannel;
 
     /**
-     * The destination patch number.
+     * The patch number.
      */
-    private int destination;
+    private int patchNumber;
 
     /**
      * The patch name.
      */
-    private String name;
+    private String patchName;
 
     /**
      * The oscillator 1 wave.
@@ -195,7 +195,7 @@ public class Patch implements Serializable {
      * Construct an instance that describes a Behringer JT-4000 patch.
      */
     public Patch() {
-        name = "";
+        patchName = "";
         buffer[0] = MidiUtils.SYSEX_INITIAL_BYTE;
         System.arraycopy(PATCH_DUMP_HEADER, 0, buffer, 1, PATCH_DUMP_HEADER.length);
         System.arraycopy(PATCH_DUMP_ID, 0, buffer, PATCH_DUMP_HEADER.length + 1, PATCH_DUMP_ID.length);
@@ -206,6 +206,8 @@ public class Patch implements Serializable {
      * Initialise the voice.
      */
     public void initialise() {
+        patchNumber = 0;
+        patchName = "";
         osc1Wave = Osc1Wave.TRIANGLE;
         osc1CoarseTune = 0;
         osc1FineTune = 0;
@@ -237,39 +239,39 @@ public class Patch implements Serializable {
     }
 
     /**
-     * Get the source patch number.
+     * Get the MIDI channel.
      *
-     * @return the source patch number
+     * @return the MIDI channel
      */
-    public int getSource() {
-        return source;
+    public int getMidiChannel() {
+        return midiChannel;
     }
 
     /**
-     * Set the source patch number.
+     * Set the MIDI channel.
      *
-     * @param source the source patch number
+     * @param midiChannel the MIDI channel
      */
-    public void setSource(final int source) {
-        this.source = source;
+    public void setMidiChannel(final int midiChannel) {
+        this.midiChannel = midiChannel;
     }
 
     /**
-     * Get the destination patch number.
+     * Get the patch number.
      *
-     * @return the destination patch number
+     * @return the patch number
      */
-    public int getDestination() {
-        return destination;
+    public int getPatchNumber() {
+        return patchNumber;
     }
 
     /**
-     * Set the destination patch number.
+     * Set the patch number.
      *
-     * @param destination the destination patch number
+     * @param patchNumber the patch number
      */
-    public void setDestination(final int destination) {
-        this.destination = destination;
+    public void setPatchNumber(final int patchNumber) {
+        this.patchNumber = patchNumber;
     }
 
     /**
@@ -277,17 +279,17 @@ public class Patch implements Serializable {
      *
      * @return the patch name
      */
-    public String getName() {
-        return name;
+    public String getPatchName() {
+        return patchName;
     }
 
     /**
      * Set the patch name.
      *
-     * @param name the patch name
+     * @param patchName the patch name
      */
-    public void setName(final String name) {
-        this.name = name;
+    public void setPatchName(final String patchName) {
+        this.patchName = patchName;
     }
 
     /**
@@ -819,8 +821,8 @@ public class Patch implements Serializable {
      * @throws InvalidMidiDataException if the voice data is invalid
      */
     public SysexMessage serialise() throws InvalidMidiDataException {
-        buffer[30] = (byte) source;
-        buffer[31] = (byte) destination;
+        buffer[30] = (byte) midiChannel;
+        buffer[31] = (byte) patchNumber;
 
         return new SysexMessage(buffer, buffer.length);
     }

@@ -7,6 +7,9 @@ package net.chriswareham.jt4000;
 public interface PatchUpdatedListener {
     /**
      * Notify the listener that a patch has been updated.
+     *
+     * @param ccNumber the number of the control change
+     * @param ccValue the value of the control change
      */
-    void updated();
+    void updated(int ccNumber, int ccValue);
 }
