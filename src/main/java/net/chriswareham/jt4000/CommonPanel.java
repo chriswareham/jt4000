@@ -42,7 +42,7 @@ public class CommonPanel extends JPanel {
     /**
      * The patch name text field.
      */
-    private final JTextField patchNameTextField = new IdentifierTextField(PATCH_NAME_PATTERN, 8, 8);
+    private final JTextField patchNameTextField = new IdentifierTextField(PATCH_NAME_PATTERN, 9, 9);
 
     /**
      * The patch to edit.
