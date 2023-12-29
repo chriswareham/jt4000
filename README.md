@@ -2,6 +2,8 @@
 
 Cross platform editor for the Behringer JT-4000 synthesiser.
 
+![Screenshot](/screenshot.png)
+
 ## Requirements
 
 To build, the following are required:
